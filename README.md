@@ -1,1 +1,0 @@
-# verificador_facial
