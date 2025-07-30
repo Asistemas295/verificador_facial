@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Verificador de Rostros</title>
+</head>
+<body>
+  <h2>🧠 Captura tu rostro</h2>
+  <video id="video" width="320" height="240" autoplay></video>
+  <br>
+  <button onclick="capturar()">Verificar</button>
+  <canvas id="canvas" style="display:none;"></canvas>
+  <p id="resultado"></p>
+
+  <a href="/registro">Registrar</a>
+
+  <script>
+    const video = document.getElementById('video');
+    navigator.mediaDevices.getUserMedia({ video: true })
+      .then(stream => video.srcObject = stream);
+
+    function capturar() {
+      const canvas = document.getElementById('canvas');
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      canvas.getContext('2d').drawImage(video, 0, 0);
+      const data = canvas.toDataURL('image/jpeg');
+
+      fetch('/verificar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ imagen: data })
+      })
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById('resultado').innerText = data.resultado;
+      });
+    }
+  </script>
+</body>
+</html>

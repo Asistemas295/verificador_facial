@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Registrar nuevo rostro</title>
+</head>
+<body>
+  <h2>🆕 Registrar nuevo rostro</h2>
+  <input type="text" id="nombre" placeholder="Escribe tu nombre">
+  <br><br>
+  <video id="video" width="320" height="240" autoplay></video>
+  <br>
+  <button onclick="registrar()">Guardar rostro</button>
+  <canvas id="canvas" style="display:none;"></canvas>
+  <p id="mensaje"></p>
+
+  <a href="/">Verificar</a>
+
+  <script>
+    const video = document.getElementById('video');
+    navigator.mediaDevices.getUserMedia({ video: true })
+      .then(stream => video.srcObject = stream);
+
+    function registrar() {
+      const nombre = document.getElementById("nombre").value.trim();
+      if (!nombre) {
+        alert("Escribe un nombre para registrar.");
+        return;
+      }
+
+      const canvas = document.getElementById('canvas');
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      canvas.getContext('2d').drawImage(video, 0, 0);
+      const data = canvas.toDataURL('image/jpeg');
+
+      fetch('/registrar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nombre, imagen: data })
+      })
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById('mensaje').innerText = data.resultado;
+      });
+    }
+  </script>
+</body>
+</html>
